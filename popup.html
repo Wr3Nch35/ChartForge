@@ -21,6 +21,25 @@
         <label for="chart-title">圖表名稱</label>
         <input id="chart-title" type="text" maxlength="120" placeholder="例如：標題" required>
 
+        <details class="style-details title-style-details">
+          <summary>標題文字樣式</summary>
+          <div id="title-text-style" class="text-style-grid">
+            <label class="font-control">字體
+              <select class="text-font"></select>
+            </label>
+            <label>大小
+              <input class="text-size" type="number" min="8" max="72" step="1" inputmode="numeric">
+            </label>
+            <label>文字顏色
+              <input class="text-color" type="color">
+            </label>
+            <div class="style-toggles" aria-label="標題字型樣式">
+              <label class="style-toggle" title="粗體"><input class="text-bold" type="checkbox"><span>粗體</span></label>
+              <label class="style-toggle" title="斜體"><input class="text-italic" type="checkbox"><span>斜體</span></label>
+            </div>
+          </div>
+        </details>
+
         <div class="two-column">
           <div>
             <label for="chart-type">圖表種類</label>

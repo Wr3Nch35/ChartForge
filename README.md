@@ -20,6 +20,7 @@ ChartForge is a fully offline Chrome and Microsoft Edge extension for creating h
 
 - Create pie, bar, and line charts
 - Customize item names, values, and colors
+- Customize the title and each item's font, size, text color, bold, and italic styles
 - Export 16:9, 4:3, and 1:1 images
 - Export PNG files at 1x to 4x resolution
 - Switch between light, dark, and browser-following themes

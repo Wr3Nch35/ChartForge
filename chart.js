@@ -5,11 +5,40 @@
   let config;
 
   const baseText = { fontFamily: "Segoe UI, Noto Sans TC, sans-serif", color: "#3e4850" };
+  const chartTextStyle = (style) => ({
+    fontFamily: style.fontFamily,
+    fontSize: style.fontSize,
+    color: style.color,
+    fontWeight: style.bold ? "bold" : "normal",
+    fontStyle: style.italic ? "italic" : "normal"
+  });
+
+  function itemRichStyles() {
+    return Object.fromEntries(config.rows.map((row, index) => [`item${index}`, chartTextStyle(row.textStyle)]));
+  }
+
+  function richItemFormatter(name) {
+    const index = config.rows.findIndex((row) => row.name === name);
+    return index >= 0 ? `{item${index}|${name}}` : name;
+  }
+
+  function categoryAxisLabel(defaultSize) {
+    return {
+      ...baseText,
+      fontSize: defaultSize,
+      interval: 0,
+      rotate: config.rows.length > 6 ? 25 : 0,
+      margin: 18,
+      formatter: richItemFormatter,
+      rich: itemRichStyles()
+    };
+  }
+
   const title = (isSquare) => ({
     text: config.title,
     left: isSquare ? 34 : 42,
     top: isSquare ? 28 : 30,
-    textStyle: { ...baseText, color: "#F07C28", fontSize: 22, fontWeight: "bold" }
+    textStyle: chartTextStyle(config.titleStyle)
   });
 
   function pieOption(size) {
@@ -27,7 +56,8 @@
         itemHeight: 13,
         itemGap: 18,
         data: config.rows.map((row) => row.name),
-        textStyle: { ...baseText, fontSize: 18 }
+        formatter: richItemFormatter,
+        textStyle: { ...baseText, fontSize: 18, rich: itemRichStyles() }
       },
       series: [{
         type: "pie",
@@ -37,7 +67,12 @@
         avoidLabelOverlap: true,
         label: { show: true, position: "inside", formatter: "{c} ({d}%)", color: "#000000", fontSize: 20, fontWeight: "bold" },
         itemStyle: { borderColor: "#ffffff", borderWidth: 2 },
-        data: config.rows.map((row) => ({ value: row.value, name: row.name, itemStyle: { color: row.color } }))
+        data: config.rows.map((row) => ({
+          value: row.value,
+          name: row.name,
+          itemStyle: { color: row.color },
+          label: { show: true, position: "inside", formatter: "{c} ({d}%)", ...chartTextStyle(row.textStyle) }
+        }))
       }]
     };
   }
@@ -54,7 +89,7 @@
         data: config.rows.map((row) => row.name),
         axisTick: { alignWithLabel: true },
         axisLine: { lineStyle: { color: "#87939e" } },
-        axisLabel: { ...baseText, fontSize: 17, interval: 0, rotate: config.rows.length > 6 ? 25 : 0, margin: 18 }
+        axisLabel: categoryAxisLabel(17)
       },
       yAxis: {
         type: "value",
@@ -64,7 +99,11 @@
       series: [{
         type: "bar",
         barMaxWidth: 92,
-        data: config.rows.map((row) => ({ value: row.value, itemStyle: { color: row.color, borderRadius: [5, 5, 0, 0] } })),
+        data: config.rows.map((row) => ({
+          value: row.value,
+          itemStyle: { color: row.color, borderRadius: [5, 5, 0, 0] },
+          label: { show: true, position: "top", ...chartTextStyle(row.textStyle) }
+        })),
         label: { show: true, position: "top", color: "#27323a", fontSize: 18, fontWeight: "bold" }
       }]
     };
@@ -83,7 +122,7 @@
         boundaryGap: true,
         data: config.rows.map((row) => row.name),
         axisLine: { lineStyle: { color: "#87939e" } },
-        axisLabel: { ...baseText, fontSize: 17, interval: 0, rotate: config.rows.length > 6 ? 25 : 0, margin: 18 }
+        axisLabel: categoryAxisLabel(17)
       },
       yAxis: {
         type: "value",
@@ -97,7 +136,11 @@
         symbolSize: 14,
         lineStyle: { width: 4, color: primaryColor },
         itemStyle: { color: primaryColor, borderColor: "#ffffff", borderWidth: 2 },
-        data: config.rows.map((row) => ({ value: row.value, itemStyle: { color: row.color } })),
+        data: config.rows.map((row) => ({
+          value: row.value,
+          itemStyle: { color: row.color },
+          label: { show: true, position: "top", distance: 10, ...chartTextStyle(row.textStyle) }
+        })),
         label: { show: true, position: "top", distance: 10, color: "#27323a", fontSize: 17, fontWeight: "bold" }
       }]
     };
