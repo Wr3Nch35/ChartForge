@@ -1,0 +1,69 @@
+:root { color-scheme: light; font-family: "Segoe UI", "Noto Sans TC", sans-serif; color: #263238; background: transparent; }
+:root[data-theme="dark"] { color-scheme: dark; color: #e7edf2; background: transparent; }
+* { box-sizing: border-box; }
+html, body { overflow: hidden; }
+body { margin: 0; width: 430px; height: 600px; padding: 4px; background: transparent; }
+.popup-card { width: 100%; height: 100%; padding: 18px; overflow-x: hidden; overflow-y: auto; border-radius: 6px; background: #f5f7fa; }
+header, .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+h1 { margin: 0; font-size: 21px; letter-spacing: .02em; }
+h2 { margin: 0; font-size: 15px; }
+header p, .section-heading p { margin: 4px 0 0; color: #73808c; font-size: 12px; }
+.panel { margin: 14px 0; padding: 15px; border: 1px solid #dce2e8; border-radius: 6px; background: #fff; box-shadow: 0 2px 8px rgba(28, 45, 61, .04); }
+label { display: block; margin: 0 0 6px; font-size: 13px; font-weight: 650; }
+input, select, button { font: inherit; }
+input[type="text"], input[type="number"], select { width: 100%; height: 36px; padding: 6px 9px; border: 1px solid #cbd4dc; border-radius: 6px; color: #263238; background: #fff; outline: none; }
+input:focus, select:focus { border-color: #377dcd; box-shadow: 0 0 0 3px rgba(55, 125, 205, .12); }
+.two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 13px 0; }
+.hint { min-height: 16px; margin: 6px 0 0; color: #73808c; font-size: 12px; }
+.data-panel { padding-bottom: 12px; }
+.section-heading { align-items: center; margin-bottom: 12px; }
+.secondary-button, .text-button { border: 0; color: #286cb5; background: transparent; cursor: pointer; font-size: 13px; font-weight: 650; }
+.secondary-button { padding: 7px 9px; border: 1px solid #b9cee5; border-radius: 6px; background: #f6faff; }
+.row-labels, .data-row { display: grid; grid-template-columns: minmax(0, 1fr) 78px 45px 30px; gap: 7px; align-items: center; }
+.row-labels { margin-bottom: 5px; padding: 0 2px; color: #687580; font-size: 11px; }
+.data-row { margin-bottom: 8px; }
+.data-row input { min-width: 0; height: 34px; }
+.data-row input[type="color"] { width: 40px; padding: 2px; border: 1px solid #cbd4dc; border-radius: 6px; background: #fff; cursor: pointer; }
+.delete-button { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; color: #a43c3c; background: #fff0f0; cursor: pointer; font-size: 17px; }
+.delete-button:hover { background: #ffe2e2; }
+.error { min-height: 17px; margin: 6px 0 0; color: #b42318; font-size: 12px; }
+.primary-button { width: 100%; height: 44px; border: 0; border-radius: 6px; color: white; background: #1769aa; box-shadow: 0 4px 10px rgba(23, 105, 170, .22); cursor: pointer; font-size: 15px; font-weight: 700; }
+.primary-button:hover { background: #115c98; }
+.theme-fieldset { margin: 13px 0 0; padding: 0; border: 0; }
+.theme-fieldset legend { margin-bottom: 6px; font-size: 13px; font-weight: 650; }
+.theme-switch { display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 3px; border: 1px solid #cbd4dc; border-radius: 6px; background: #f0f3f6; }
+.theme-switch label { margin: 0; cursor: pointer; }
+.theme-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.theme-switch span { display: block; padding: 6px 4px; border-radius: 6px; text-align: center; color: #65727d; font-size: 12px; font-weight: 600; }
+.theme-switch input:checked + span { color: #1769aa; background: #fff; box-shadow: 0 1px 4px rgba(20, 38, 54, .15); }
+:root[data-theme="dark"] .popup-card { background: #111820; }
+:root[data-theme="dark"] .panel { border-color: #34424e; background: #1b2530; box-shadow: none; }
+:root[data-theme="dark"] header p, :root[data-theme="dark"] .section-heading p, :root[data-theme="dark"] .hint, :root[data-theme="dark"] .row-labels { color: #9dabb7; }
+:root[data-theme="dark"] input[type="text"], :root[data-theme="dark"] input[type="number"], :root[data-theme="dark"] select, :root[data-theme="dark"] .data-row input[type="color"] { border-color: #465563; color: #e7edf2; background: #202c37; }
+:root[data-theme="dark"] .secondary-button { border-color: #465d74; color: #8dc4f4; background: #202e3b; }
+:root[data-theme="dark"] .text-button { color: #8dc4f4; }
+:root[data-theme="dark"] .delete-button { color: #ff9c98; background: #3b2529; }
+:root[data-theme="dark"] .theme-switch { border-color: #465563; background: #141d26; }
+:root[data-theme="dark"] .theme-switch span { color: #9dabb7; }
+:root[data-theme="dark"] .theme-switch input:checked + span { color: #a8d5fa; background: #2b3b49; box-shadow: none; }
+
+/* Compact classic scrollbar, matching the supplied reference. */
+* { scrollbar-width: thin; scrollbar-color: #444 #fff; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #fff; border-left: 1px solid #c4c4c4; border-right: 1px solid #c4c4c4; }
+::-webkit-scrollbar-thumb { min-height: 28px; border: 2px solid #fff; border-radius: 6px; background: #444; }
+::-webkit-scrollbar-thumb:hover { background: #222; }
+::-webkit-scrollbar-button:single-button { display: block; width: 10px; height: 10px; border-left: 1px solid #c4c4c4; border-right: 1px solid #c4c4c4; background-color: #fff; background-position: center; background-repeat: no-repeat; }
+::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: linear-gradient(135deg, transparent 50%, #333 50%), linear-gradient(225deg, transparent 50%, #333 50%); background-position: 2px 5px, 5px 5px; background-size: 3px 3px; }
+::-webkit-scrollbar-button:single-button:vertical:increment { background-image: linear-gradient(45deg, transparent 50%, #333 50%), linear-gradient(315deg, transparent 50%, #333 50%); background-position: 2px 2px, 5px 2px; background-size: 3px 3px; }
+:root[data-theme="dark"] * { scrollbar-color: #3f4449 #555b61; }
+:root[data-theme="dark"] ::-webkit-scrollbar-track { border-color: #656b70; background: #555b61; }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb { border-color: #555b61; background: #3f4449; }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #33383d; }
+:root[data-theme="dark"] ::-webkit-scrollbar-button:single-button { border-color: #656b70; background-color: #555b61; }
+@media (min-width: 700px) {
+  html, body { overflow: auto; }
+  body { width: auto; height: auto; min-height: 100vh; padding: 0; background: #eef1f5; }
+  .popup-card { width: 430px; height: auto; min-height: 560px; margin: 24px auto; overflow: visible; }
+  :root[data-theme="dark"] body { background: #111820; }
+}

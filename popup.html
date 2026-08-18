@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChartForge</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup-card">
+    <header>
+      <div>
+        <h1>ChartForge</h1>
+        <p>建立適合簡報使用的高解析度圖表</p>
+      </div>
+      <button id="reset-button" class="text-button" type="button">重設</button>
+    </header>
+
+    <form id="chart-form" novalidate>
+      <section class="panel">
+        <label for="chart-title">圖表名稱</label>
+        <input id="chart-title" type="text" maxlength="120" placeholder="例如：標題" required>
+
+        <div class="two-column">
+          <div>
+            <label for="chart-type">圖表種類</label>
+            <select id="chart-type">
+              <option value="pie">圓餅圖</option>
+              <option value="bar">長條圖</option>
+              <option value="line">折線圖</option>
+            </select>
+          </div>
+          <div>
+            <label for="aspect-ratio">圖片比例</label>
+            <select id="aspect-ratio">
+              <option value="16:9">16:9</option>
+              <option value="4:3">4:3</option>
+              <option value="1:1">1:1</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="pixel-ratio">輸出解析度</label>
+        <select id="pixel-ratio">
+          <option value="1">1x</option>
+          <option value="2">2x</option>
+          <option value="3">3x</option>
+          <option value="4">4x</option>
+        </select>
+        <p id="resolution-hint" class="hint"></p>
+
+        <fieldset class="theme-fieldset">
+          <legend>顯示主題</legend>
+          <div class="theme-switch" role="radiogroup" aria-label="顯示主題">
+            <label><input type="radio" name="theme" value="system"><span>跟隨瀏覽器</span></label>
+            <label><input type="radio" name="theme" value="light"><span>亮色</span></label>
+            <label><input type="radio" name="theme" value="dark"><span>暗色</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="panel data-panel">
+        <div class="section-heading">
+          <div>
+            <h2>圖表資料</h2>
+            <p>所有項目都會使用自訂顏色</p>
+          </div>
+          <button id="add-row" class="secondary-button" type="button">＋ 新增項目</button>
+        </div>
+        <div class="row-labels" aria-hidden="true"><span>項目名稱</span><span>數值</span><span>顏色</span><span></span></div>
+        <div id="data-rows"></div>
+        <p id="form-error" class="error" role="alert"></p>
+      </section>
+
+      <button class="primary-button" type="submit">產生圖表</button>
+    </form>
+  </main>
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChartForge 圖表預覽</title>
+  <link rel="stylesheet" href="chart.css">
+</head>
+<body>
+  <header class="toolbar">
+    <div>
+      <strong id="page-title">圖表預覽</strong>
+      <span id="output-size"></span>
+    </div>
+    <div class="actions">
+      <button id="edit-button" type="button">返回設定 / 編輯資料</button>
+      <button id="download-button" class="primary" type="button">下載 PNG</button>
+    </div>
+  </header>
+  <main id="preview-area">
+    <div id="chart-frame"><div id="chart" role="img" aria-label="產生的圖表"></div></div>
+  </main>
+  <p id="chart-error" role="alert"></p>
+  <script src="lib/echarts.min.js"></script>
+  <script src="shared.js"></script>
+  <script src="chart.js"></script>
+</body>
+</html>
