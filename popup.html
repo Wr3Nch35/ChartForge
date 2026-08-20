@@ -78,6 +78,31 @@
         </fieldset>
       </section>
 
+      <section class="panel import-panel">
+        <div class="section-heading">
+          <div>
+            <h2>從 Excel 匯入</h2>
+            <p>指定標題列與欄位，再分組統計下方資料</p>
+          </div>
+        </div>
+        <label for="excel-file">Excel 或 CSV 檔案</label>
+        <input id="excel-file" class="file-input" type="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv">
+        <label for="sheet-select">工作表</label>
+        <select id="sheet-select" disabled><option value="">請先選擇檔案</option></select>
+        <div class="two-column import-selectors">
+          <div>
+            <label for="header-row">標題所在列</label>
+            <input id="header-row" type="number" min="1" step="1" value="1" disabled>
+          </div>
+          <div>
+            <label for="column-select">統計欄位</label>
+            <select id="column-select" disabled><option value="">請先選擇標題列</option></select>
+          </div>
+        </div>
+        <button id="apply-import" class="secondary-button import-button" type="button" disabled>統計並套用</button>
+        <p id="import-status" class="hint" role="status"></p>
+      </section>
+
       <section class="panel data-panel">
         <div class="section-heading">
           <div>
@@ -94,6 +119,7 @@
       <button class="primary-button" type="submit">產生圖表</button>
     </form>
   </main>
+  <script src="lib/xlsx.full.min.js"></script>
   <script src="shared.js"></script>
   <script src="popup.js"></script>
 </body>

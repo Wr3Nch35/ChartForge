@@ -21,6 +21,8 @@ ChartForge is a fully offline Chrome and Microsoft Edge extension for creating h
 - Create pie, bar, and line charts
 - Customize item names, values, and colors
 - Customize the title and each item's font, size, text color, bold, and italic styles
+- Import `.xlsx`, `.xls`, or `.csv`, choose a header row and column, and count the values below it
+- Temporarily retain only aggregated spreadsheet results (never full worksheet rows), then clear them when the last generated tab closes
 - Export 16:9, 4:3, and 1:1 images
 - Export PNG files at 1x to 4x resolution
 - Switch between light, dark, and browser-following themes
@@ -97,9 +99,12 @@ ChartForge/
 ├─ chart.html
 ├─ chart.css
 ├─ chart.js
+├─ background.js
 ├─ shared.js
 ├─ lib/
-│  └─ echarts.min.js
+│  ├─ echarts.min.js
+│  ├─ xlsx.full.min.js
+│  └─ LICENSE.sheetjs.txt
 └─ icons/
    ├─ icon16.png
    ├─ icon32.png

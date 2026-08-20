@@ -15,6 +15,11 @@ input[type="text"], input[type="number"], select { width: 100%; height: 36px; pa
 input:focus, select:focus { border-color: #377dcd; box-shadow: 0 0 0 3px rgba(55, 125, 205, .12); }
 .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 13px 0; }
 .hint { min-height: 16px; margin: 6px 0 0; color: #73808c; font-size: 12px; }
+.file-input { width: 100%; padding: 8px; border: 1px dashed #b8c5d0; border-radius: 6px; color: #5b6873; background: #f8fafc; font-size: 12px; cursor: pointer; }
+.file-input::file-selector-button { margin-right: 9px; padding: 6px 9px; border: 1px solid #b9cee5; border-radius: 6px; color: #286cb5; background: #f6faff; cursor: pointer; font: inherit; font-weight: 650; }
+.import-selectors { margin-bottom: 10px; }
+.import-button { width: 100%; }
+.import-button:disabled { opacity: .5; cursor: not-allowed; }
 .data-panel { padding-bottom: 12px; }
 .section-heading { align-items: center; margin-bottom: 12px; }
 .secondary-button, .text-button { border: 0; color: #286cb5; background: transparent; cursor: pointer; font-size: 13px; font-weight: 650; }
@@ -62,6 +67,8 @@ input:focus, select:focus { border-color: #377dcd; box-shadow: 0 0 0 3px rgba(55
 :root[data-theme="dark"] .theme-switch { border-color: #465563; background: #141d26; }
 :root[data-theme="dark"] .theme-switch span { color: #9dabb7; }
 :root[data-theme="dark"] .theme-switch input:checked + span { color: #a8d5fa; background: #2b3b49; box-shadow: none; }
+:root[data-theme="dark"] .file-input { border-color: #465563; color: #b5c0c9; background: #17212a; }
+:root[data-theme="dark"] .file-input::file-selector-button { border-color: #465d74; color: #8dc4f4; background: #202e3b; }
 :root[data-theme="dark"] .data-item { border-color: #34424e; }
 :root[data-theme="dark"] .style-details { border-color: #3c4b58; background: #17212a; }
 :root[data-theme="dark"] .style-details summary { color: #8dc4f4; }

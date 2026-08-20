@@ -43,6 +43,8 @@
 
   function pieOption(size) {
     const square = size.width === size.height;
+    const crowded = config.rows.length > 8;
+    const labelPosition = crowded ? "outside" : "inside";
     return {
       backgroundColor: "#ffffff",
       animation: false,
@@ -54,24 +56,27 @@
         icon: "circle",
         itemWidth: 13,
         itemHeight: 13,
-        itemGap: 18,
+        itemGap: crowded ? 12 : 18,
         data: config.rows.map((row) => row.name),
         formatter: richItemFormatter,
         textStyle: { ...baseText, fontSize: 18, rich: itemRichStyles() }
       },
       series: [{
         type: "pie",
-        radius: "42%",
-        center: ["50%", square ? "59%" : "57%"],
+        radius: crowded ? "36%" : "42%",
+        center: ["50%", crowded ? "61%" : (square ? "59%" : "57%")],
         selectedMode: false,
         avoidLabelOverlap: true,
-        label: { show: true, position: "inside", formatter: "{c} ({d}%)", color: "#000000", fontSize: 20, fontWeight: "bold" },
+        minShowLabelAngle: crowded ? 2 : 0,
+        labelLayout: crowded ? { hideOverlap: true, moveOverlap: "shiftY" } : undefined,
+        labelLine: { show: crowded, length: 18, length2: 12, smooth: 0.15 },
+        label: { show: true, position: labelPosition, formatter: "{c} ({d}%)", color: "#000000", fontSize: 20, fontWeight: "bold" },
         itemStyle: { borderColor: "#ffffff", borderWidth: 2 },
         data: config.rows.map((row) => ({
           value: row.value,
           name: row.name,
           itemStyle: { color: row.color },
-          label: { show: true, position: "inside", formatter: "{c} ({d}%)", ...chartTextStyle(row.textStyle) }
+          label: { show: true, position: labelPosition, formatter: "{c} ({d}%)", ...chartTextStyle(row.textStyle) }
         }))
       }]
     };

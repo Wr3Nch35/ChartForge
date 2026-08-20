@@ -21,6 +21,8 @@ ChartForge 是一套可完全離線使用的 Chrome／Microsoft Edge 瀏覽器�
 - 建立圓餅圖、長條圖及折線圖
 - 自訂項目名稱、數值與顏色
 - 自訂標題及每個項目的字體、大小、文字顏色、粗體與斜體樣式
+- 匯入 `.xlsx`、`.xls` 或 `.csv`，選擇標題列與欄位，再統計該欄下方的資料
+- 預覽／編輯分頁開啟時只暫存試算表彙總結果（不保存完整工作表列），並在最後一個產生的分頁關閉時清除
 - 輸出 16:9、4:3、1:1 圖片比例
 - 支援 1x 至 4x PNG 輸出解析度
 - 切換亮色、暗色及跟隨瀏覽器主題
@@ -97,9 +99,12 @@ ChartForge/
 ├─ chart.html
 ├─ chart.css
 ├─ chart.js
+├─ background.js
 ├─ shared.js
 ├─ lib/
-│  └─ echarts.min.js
+│  ├─ echarts.min.js
+│  ├─ xlsx.full.min.js
+│  └─ LICENSE.sheetjs.txt
 └─ icons/
    ├─ icon16.png
    ├─ icon32.png

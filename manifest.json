@@ -4,6 +4,9 @@
   "description": "離線建立適合簡報使用的圓餅圖、長條圖與折線圖。",
   "version": "1.0.0",
   "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_title": "ChartForge",
     "default_popup": "popup.html",

@@ -5,6 +5,12 @@
   const rowsElement = $("#data-rows");
   const errorElement = $("#form-error");
   const fontLabels = ["系統預設", "微軟正黑體", "Arial", "Georgia", "Courier New"];
+  let importedWorkbook = null;
+  let importedSheetRows = [];
+  let importedSummary = null;
+  let importedHeaderName = "";
+  let importedFileName = "";
+  let restoringImport = false;
 
   function fillTextStyleControls(container, style) {
     const fontSelect = container.querySelector(".text-font");
@@ -161,7 +167,219 @@
     });
   }
 
+  function setImportStatus(message, isError = false) {
+    const status = $("#import-status");
+    status.textContent = message;
+    status.classList.toggle("error", isError);
+  }
+
+  function resetImportSelectors() {
+    $("#sheet-select").replaceChildren(new Option("請先選擇檔案", ""));
+    $("#column-select").replaceChildren(new Option("請先選擇標題列", ""));
+    $("#sheet-select").disabled = true;
+    $("#header-row").disabled = true;
+    $("#header-row").value = "1";
+    $("#column-select").disabled = true;
+    $("#apply-import").disabled = true;
+    importedSheetRows = [];
+  }
+
+  async function saveImportSession() {
+    if (restoringImport || !importedSummary?.length) return;
+    try {
+      await chrome.storage.session.set({
+        spreadsheetImport: {
+          fileName: importedFileName,
+          sheetName: $("#sheet-select").value,
+          headerRow: Number($("#header-row").value),
+          columnIndex: $("#column-select").value,
+          headerName: importedHeaderName,
+          summary: importedSummary.map(({ name, value }) => ({ name, value }))
+        }
+      });
+    } catch (error) {
+      setImportStatus(`目前仍可使用彙總結果，但無法暫存到返回後使用：${error.message}`, true);
+    }
+  }
+
+  async function restoreImportSession() {
+    const { spreadsheetImport } = await chrome.storage.session.get("spreadsheetImport");
+    if (!spreadsheetImport) return;
+    if (Array.isArray(spreadsheetImport.rows)) {
+      await chrome.storage.session.remove("spreadsheetImport");
+      return;
+    }
+    if (!Array.isArray(spreadsheetImport.summary) || !spreadsheetImport.summary.length) return;
+    restoringImport = true;
+    importedWorkbook = null;
+    importedFileName = String(spreadsheetImport.fileName || "Excel 檔案");
+    importedSheetRows = [];
+    importedHeaderName = String(spreadsheetImport.headerName || "匯入統計");
+    importedSummary = spreadsheetImport.summary.map((row, index) => ({
+      name: String(row.name),
+      value: Number(row.value),
+      color: ChartConfig.palette[index % ChartConfig.palette.length],
+      textStyle: ChartConfig.textStyleDefaults()
+    }));
+    const sheetName = String(spreadsheetImport.sheetName || "已暫存工作表");
+    $("#sheet-select").replaceChildren(new Option(`${sheetName}（彙總暫存）`, sheetName));
+    $("#sheet-select").disabled = true;
+    $("#header-row").value = String(spreadsheetImport.headerRow || 1);
+    $("#header-row").disabled = true;
+    const columnIndex = Number(spreadsheetImport.columnIndex);
+    const columnLabel = Number.isInteger(columnIndex) ? `${XLSX.utils.encode_col(columnIndex)} — ${importedHeaderName}` : importedHeaderName;
+    $("#column-select").replaceChildren(new Option(`${columnLabel}（彙總）`, String(spreadsheetImport.columnIndex ?? "")));
+    $("#column-select").disabled = true;
+    $("#apply-import").disabled = false;
+    restoringImport = false;
+    setImportStatus(`已恢復彙總：${importedFileName}／${sheetName}，不含 Excel 逐筆資料。`);
+  }
+
+  function populateColumnOptions() {
+    const headerRow = Number($("#header-row").value);
+    const columnSelect = $("#column-select");
+    columnSelect.replaceChildren();
+    $("#apply-import").disabled = true;
+    if (!Number.isInteger(headerRow) || headerRow < 1 || headerRow > importedSheetRows.length) {
+      columnSelect.add(new Option("標題列超出範圍", ""));
+      columnSelect.disabled = true;
+      setImportStatus(`請輸入 1 至 ${Math.max(1, importedSheetRows.length)} 之間的標題列。`, true);
+      return;
+    }
+
+    const headers = importedSheetRows[headerRow - 1] || [];
+    headers.forEach((header, index) => {
+      const name = String(header).trim();
+      if (name) columnSelect.add(new Option(`${XLSX.utils.encode_col(index)} — ${name}`, String(index)));
+    });
+    if (!columnSelect.options.length) {
+      columnSelect.add(new Option("找不到欄位標題", ""));
+      columnSelect.disabled = true;
+      setImportStatus("標題列沒有可選擇的欄位。", true);
+      return;
+    }
+    columnSelect.disabled = false;
+    $("#apply-import").disabled = false;
+    setImportStatus(`第 ${headerRow} 列下方共有 ${Math.max(0, importedSheetRows.length - headerRow)} 列可統計。`);
+  }
+
+  function populateImportColumns() {
+    const sheetName = $("#sheet-select").value;
+    const sheet = importedWorkbook?.Sheets[sheetName];
+    if (!sheet) {
+      importedSheetRows = [];
+      $("#header-row").disabled = true;
+      populateColumnOptions();
+      return;
+    }
+
+    if (!sheet["!ref"]) {
+      importedSheetRows = [];
+      $("#header-row").disabled = true;
+      $("#column-select").replaceChildren(new Option("工作表沒有資料", ""));
+      $("#column-select").disabled = true;
+      $("#apply-import").disabled = true;
+      setImportStatus("所選工作表沒有可匯入的資料。", true);
+      return;
+    }
+
+    const range = XLSX.utils.decode_range(sheet["!ref"]);
+    range.s = { r: 0, c: 0 };
+    importedSheetRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: false, blankrows: true, range });
+    const firstContentRow = importedSheetRows.findIndex((row) => row.some((cell) => String(cell).trim() !== ""));
+    if (firstContentRow < 0) {
+      $("#header-row").disabled = true;
+      $("#column-select").replaceChildren(new Option("工作表沒有資料", ""));
+      $("#column-select").disabled = true;
+      $("#apply-import").disabled = true;
+      setImportStatus("所選工作表沒有可匯入的資料。", true);
+      return;
+    }
+    $("#header-row").max = String(importedSheetRows.length);
+    $("#header-row").value = String(firstContentRow + 1);
+    $("#header-row").disabled = false;
+    populateColumnOptions();
+  }
+
+  async function loadSpreadsheet(file) {
+    await chrome.storage.session.remove("spreadsheetImport");
+    importedSummary = null;
+    importedHeaderName = "";
+    resetImportSelectors();
+    if (!file) {
+      importedWorkbook = null;
+      importedFileName = "";
+      setImportStatus("");
+      return;
+    }
+    setImportStatus("正在讀取檔案…");
+    try {
+      importedFileName = file.name;
+      const buffer = await file.arrayBuffer();
+      importedWorkbook = XLSX.read(buffer, { type: "array" });
+      const sheetSelect = $("#sheet-select");
+      sheetSelect.replaceChildren();
+      importedWorkbook.SheetNames.forEach((name) => sheetSelect.add(new Option(name, name)));
+      if (!sheetSelect.options.length) throw new Error("檔案內沒有工作表。");
+      sheetSelect.disabled = false;
+      populateImportColumns();
+    } catch (error) {
+      importedWorkbook = null;
+      importedFileName = "";
+      resetImportSelectors();
+      setImportStatus(`無法讀取檔案：${error.message}`, true);
+    }
+  }
+
+  function applySpreadsheetImport() {
+    if (!importedSheetRows.length && importedSummary?.length) {
+      rowsElement.replaceChildren();
+      importedSummary.forEach(createRow);
+      $("#chart-title").value = importedHeaderName;
+      updateValueConstraints();
+      setImportStatus(`已重新套用 ${importedSummary.length} 個彙總項目；暫存中不含 Excel 逐筆資料。`);
+      return;
+    }
+    const columnIndex = Number($("#column-select").value);
+    const headerRow = Number($("#header-row").value);
+    const headerIndex = headerRow - 1;
+    if (!Number.isInteger(columnIndex) || !Number.isInteger(headerRow) || headerIndex < 0 || headerIndex >= importedSheetRows.length) {
+      setImportStatus("請先選擇要統計的欄位。", true);
+      return;
+    }
+    const header = String(importedSheetRows[headerIndex][columnIndex]).trim();
+    const counts = new Map();
+    importedSheetRows.slice(headerIndex + 1).forEach((row) => {
+      const value = String(row[columnIndex] ?? "").trim();
+      if (value) counts.set(value, (counts.get(value) || 0) + 1);
+    });
+    if (!counts.size) {
+      setImportStatus(`「${header}」欄位沒有可統計的內容。`, true);
+      return;
+    }
+
+    const rows = [...counts].map(([name, value], index) => ({
+      name,
+      value,
+      color: ChartConfig.palette[index % ChartConfig.palette.length],
+      textStyle: ChartConfig.textStyleDefaults()
+    }));
+    importedHeaderName = header;
+    importedSummary = rows;
+    rowsElement.replaceChildren();
+    rows.forEach(createRow);
+    $("#chart-title").value = header;
+    updateValueConstraints();
+    setImportStatus(`已統計第 ${headerRow} 列下方的資料，共產生 ${rows.length} 個項目。`);
+    void saveImportSession();
+  }
+
   $("#add-row").addEventListener("click", () => addRow());
+  $("#excel-file").addEventListener("change", (event) => loadSpreadsheet(event.target.files[0]));
+  $("#sheet-select").addEventListener("change", () => { importedSummary = null; void chrome.storage.session.remove("spreadsheetImport"); populateImportColumns(); });
+  $("#header-row").addEventListener("input", () => { importedSummary = null; void chrome.storage.session.remove("spreadsheetImport"); populateColumnOptions(); });
+  $("#column-select").addEventListener("change", () => { importedSummary = null; void chrome.storage.session.remove("spreadsheetImport"); $("#apply-import").disabled = !$("#column-select").value; });
+  $("#apply-import").addEventListener("click", applySpreadsheetImport);
   $("#aspect-ratio").addEventListener("change", updateResolutionHint);
   $("#pixel-ratio").addEventListener("change", updateResolutionHint);
   $("#chart-type").addEventListener("change", updateValueConstraints);
@@ -177,6 +395,14 @@
   $("#reset-button").addEventListener("click", async () => {
     const config = ChartConfig.defaults();
     await chrome.storage.local.set({ chartConfig: config });
+    await chrome.storage.session.remove("spreadsheetImport");
+    importedWorkbook = null;
+    importedFileName = "";
+    importedSummary = null;
+    importedHeaderName = "";
+    resetImportSelectors();
+    $("#excel-file").value = "";
+    setImportStatus("");
     render(config);
     errorElement.textContent = "";
   });
@@ -186,11 +412,15 @@
     try {
       const config = collectAndValidate();
       await chrome.storage.local.set({ chartConfig: config });
-      await chrome.tabs.create({ url: chrome.runtime.getURL("chart.html") });
+      await saveImportSession();
+      const tab = await chrome.tabs.create({ url: chrome.runtime.getURL("chart.html") });
+      const trackingResult = await chrome.runtime.sendMessage({ type: "track-chartforge-tab", tabId: tab.id });
+      if (!trackingResult?.ok) throw new Error(trackingResult?.error || "無法追蹤圖表分頁。");
     } catch (error) {
       errorElement.textContent = error.message || "無法產生圖表，請檢查輸入內容。";
     }
   });
 
   chrome.storage.local.get("chartConfig").then(({ chartConfig }) => render(ChartConfig.normalize(chartConfig)));
+  restoreImportSession().catch((error) => setImportStatus(`無法恢復暫存資料：${error.message}`, true));
 })();
